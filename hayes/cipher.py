@@ -20,7 +20,7 @@ from numpy import (
 )
 from numpy.random import randint
 
-from hayes.s_block import S_BLOCK
+from hayes.s_block import S_BOX
 
 __all__ = ["Hayes"]
 
@@ -192,7 +192,7 @@ if __name__ == '__main__':
     keys = randint(low=1 << 16, size=rounds + 1, dtype="uint16")
     print(f"Keys: {keys}")
 
-    h = Hayes(s_block_table=S_BLOCK, keys=keys)
+    h = Hayes(s_block_table=S_BOX, keys=keys)
     c = h.encrypt(message=x)
     m = h.decrypt(ciphertext=c)
 

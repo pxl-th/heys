@@ -9,7 +9,7 @@ from numpy import (
 from tqdm import tqdm
 
 from hayes.cipher import Hayes
-from hayes.s_block import S_BLOCK
+from hayes.s_block import S_BOX
 
 __all__ = [
     "bitwise_dot",
@@ -71,6 +71,31 @@ def linear_potential(
     return (einsum("rc->r", where(potential == 0, 1, -1)) / (1 << 16)) ** 2
 
 
+def sbox_linear_approximations(s_box: ndarray) -> ndarray:
+    numbers = 1 << 4
+    approximations = zeros((16, 16), dtype="int16")
+    input_numbers = arange(numbers, dtype="uint16")
+    hamming = calculate_hamming_weight(bits=4)
+
+    for input_sum in range(numbers):
+        for output_sum in range(numbers):
+            approximations[input_sum, output_sum] = (
+                bitwise_dot(
+                    x=input_sum,
+                    y=input_numbers,
+                    hamming_weight=hamming,
+                )
+                ==
+                bitwise_dot(
+                    x=output_sum,
+                    y=s_box[input_numbers],
+                    hamming_weight=hamming,
+                )
+            ).sum()
+
+    return approximations - 8
+
+
 def bitwise_dot(x, y, hamming_weight: ndarray):
     return hamming_weight[x & y] & 0b1
 
@@ -87,7 +112,7 @@ def main():
     inputs_number = 1 << bits_number
 
     hamming = calculate_hamming_weight(bits=bits_number)
-    hayes = Hayes(s_block_table=S_BLOCK, keys=zeros(6, dtype="uint16"))
+    hayes = Hayes(s_block_table=S_BOX, keys=zeros(6, dtype="uint16"))
     inputs = arange(inputs_number, dtype="uint16").reshape((1, -1))
 
     # total_potential = 0
@@ -113,7 +138,3 @@ def main():
         )
         if av > 0:
             print(av)
-
-
-if __name__ == '__main__':
-    main()

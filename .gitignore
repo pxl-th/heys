@@ -1,0 +1,8 @@
+.idea
+.eggs
+.pytest_cache
+hayes.egg-info
+venv
+**/__pycache__
+**/*.pyc
+

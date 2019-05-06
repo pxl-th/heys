@@ -6,7 +6,7 @@ from numpy.random import randint
 from numpy.testing import assert_allclose
 
 from hayes.cipher import Hayes
-from hayes.s_block import S_BLOCK
+from hayes.s_block import S_BOX
 from hayes.utilities import (
     calculate_hamming_weight,
     linear_potential,
@@ -24,7 +24,7 @@ def test_linear_potential_property():
     hamming = calculate_hamming_weight(bits=bits_number)
     keys = randint(low=inputs_number, size=7, dtype="uint16")
     keys_batch = keys[0].reshape((1, -1))
-    hayes = Hayes(s_block_table=S_BLOCK, keys=keys)
+    hayes = Hayes(s_block_table=S_BOX, keys=keys)
     hayes_round = (
         lambda elements:
         hayes.permutation[

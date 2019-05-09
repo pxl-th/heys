@@ -33,7 +33,7 @@ def average_linear_potential(
     for _ in range(keys_batches):
         potential = bitwise_dot(
             x=beta,
-            y=hayes.permutation[hayes.s_block[inputs ^ keys_batch]],
+            y=hayes.permutation[hayes.sbox[inputs ^ keys_batch]],
             hamming_weight=hamming_weight,
         )
         potential ^= bitwise_dot(
@@ -61,36 +61,11 @@ def linear_potential(
 ) -> ndarray:
     potential = bitwise_dot(
         x=beta,
-        y=hayes.permutation[hayes.s_block[inputs ^ keys]],
+        y=hayes.permutation[hayes.sbox[inputs ^ keys]],
         hamming_weight=hamming_weight,
     )
     potential ^= bitwise_dot(x=alpha, y=inputs, hamming_weight=hamming_weight)
     return (einsum("rc->r", where(potential == 0, 1, -1)) / (1 << 16)) ** 2
-
-
-def sbox_linear_approximations(s_box: ndarray) -> ndarray:
-    numbers = 1 << 4
-    approximations = zeros((16, 16), dtype="int16")
-    input_numbers = arange(numbers, dtype="uint16")
-    hamming = calculate_hamming_weight(bits=4)
-
-    for input_sum in range(numbers):
-        for output_sum in range(numbers):
-            approximations[input_sum, output_sum] = (
-                bitwise_dot(
-                    x=input_sum,
-                    y=input_numbers,
-                    hamming_weight=hamming,
-                )
-                ==
-                bitwise_dot(
-                    x=output_sum,
-                    y=s_box[input_numbers],
-                    hamming_weight=hamming,
-                )
-            ).sum()
-
-    return approximations - 8
 
 
 def bitwise_dot(x, y, hamming_weight: ndarray):

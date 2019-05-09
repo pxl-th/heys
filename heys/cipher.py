@@ -15,22 +15,18 @@ from numpy import (
     full,
     ndarray,
     where,
-    zeros,
     zeros_like,
 )
-from numpy.random import randint
 
-from hayes.s_block import S_BOX
-
-__all__ = ["Hayes"]
+__all__ = ["Heys"]
 
 
-class Hayes:
+class Heys:
     FRAGMENT = 4
 
-    PERMUTATION_FILE = "hayes-permutation.pkl"
-    S_BLOCK_FILE = "hayes-s-block.pkl"
-    S_BLOCK_INVERSE_FILE = "hayes-s-block-inverse.pkl"
+    PERMUTATION_FILE = "heys-permutation.pkl"
+    S_BLOCK_FILE = "heys-s-block.pkl"
+    S_BLOCK_INVERSE_FILE = "heys-s-block-inverse.pkl"
 
     def __init__(self, s_block_table: ndarray, keys: ndarray):
         self._keys = keys.copy().byteswap(inplace=True)
@@ -48,11 +44,11 @@ class Hayes:
 
     def _load_cache(self):
         file_directory_path = abspath(join(__file__, ".."))
-        permutation_path = join(file_directory_path, Hayes.PERMUTATION_FILE)
-        s_block_path = join(file_directory_path, Hayes.S_BLOCK_FILE)
+        permutation_path = join(file_directory_path, Heys.PERMUTATION_FILE)
+        s_block_path = join(file_directory_path, Heys.S_BLOCK_FILE)
         s_block_inverse_path = join(
             file_directory_path,
-            Hayes.S_BLOCK_INVERSE_FILE,
+            Heys.S_BLOCK_INVERSE_FILE,
         )
 
         cache_intact = (
@@ -80,7 +76,7 @@ class Hayes:
         s_block_path: str,
         s_block_inverse_path: str,
     ):
-        self._permutation = Hayes._calculate_permutation()
+        self._permutation = Heys._calculate_permutation()
         self._s_block, self._s_block_inverse = self._calculate_s_block()
 
         with open(permutation_path, "wb") as permutation_file:
@@ -138,13 +134,13 @@ class Hayes:
             if not inverse else
             self._s_block_inverse_substitution
         )
-        for fragment_id in range(Hayes.FRAGMENT):
+        for fragment_id in range(Heys.FRAGMENT):
             s_block_output = transformation[
-                (elements >> (Hayes.FRAGMENT * fragment_id))
+                (elements >> (Heys.FRAGMENT * fragment_id))
                 & self._s_block_mask
                 ]
-            elements &= ~(self._s_block_mask << (Hayes.FRAGMENT * fragment_id))
-            elements |= s_block_output << (Hayes.FRAGMENT * fragment_id)
+            elements &= ~(self._s_block_mask << (Heys.FRAGMENT * fragment_id))
+            elements |= s_block_output << (Heys.FRAGMENT * fragment_id)
 
         return elements
 
@@ -164,11 +160,11 @@ class Hayes:
 
         for word_id, word in enumerate(words):
             for bit_id in range(16):
-                block_id = bit_id // Hayes.FRAGMENT
-                bit_pos = bit_id % Hayes.FRAGMENT
+                block_id = bit_id // Heys.FRAGMENT
+                bit_pos = bit_id % Heys.FRAGMENT
                 tmp_bit = (word & (1 << bit_id)) >> bit_id
                 shuffled[word_id] |= (
-                    (tmp_bit << (bit_pos * Hayes.FRAGMENT))
+                    (tmp_bit << (bit_pos * Heys.FRAGMENT))
                     << block_id
                 )
 
@@ -180,21 +176,3 @@ class Hayes:
             self._s_block_raw(elements=words),
             self._s_block_raw(elements=words, inverse=True),
         )
-
-
-if __name__ == '__main__':
-    x = array([0x4213], dtype="uint16")
-    for i in x:
-        print(f"{bin(i)[2:]:>016}")
-
-    rounds = 6
-    # keys = zeros(rounds + 1, dtype="uint16")
-    keys = randint(low=1 << 16, size=rounds + 1, dtype="uint16")
-    print(f"Keys: {keys}")
-
-    h = Hayes(s_block_table=S_BOX, keys=keys)
-    c = h.encrypt(message=x)
-    m = h.decrypt(ciphertext=c)
-
-    for i in m:
-        print(f"{bin(i)[2:]:>016}")

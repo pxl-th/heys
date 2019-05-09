@@ -1,6 +1,6 @@
 from pytest import mark
 
-from hayes.utilities import (
+from heys.utilities import (
     bitwise_dot,
     calculate_hamming_weight,
 )

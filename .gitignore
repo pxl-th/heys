@@ -5,4 +5,4 @@ hayes.egg-info
 venv
 **/__pycache__
 **/*.pyc
-
+**/*.pkl

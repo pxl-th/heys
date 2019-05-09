@@ -6,10 +6,10 @@ from setuptools import (
 VERSION = "0.0.1"
 
 setup(
-    name="hayes",
+    name="heys",
     version=VERSION,
     license="MIT",
-    description="Implementation of Linear Cryptanalysis on Hayes block cipher",
+    description="Implementation of Linear Cryptanalysis on Heys block cipher",
     classifiers=[
         "Development Status :: 3 - Pre-Alpha",
         "Programming Language :: Python :: 3.7",
@@ -33,6 +33,7 @@ setup(
     ],
     extras_require={
         "dev": [
+            "pytest>=4.4,<5",
             "sphinx>=2.0,<3.0",
             "sphinx-rtd-theme>=0.4",
         ],

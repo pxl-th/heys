@@ -6,10 +6,7 @@ from numpy import (
     zeros,
 )
 
-from tqdm import tqdm
-
-from hayes.cipher import Hayes
-from hayes.s_block import S_BOX
+from heys.cipher import Heys
 
 __all__ = [
     "bitwise_dot",
@@ -23,7 +20,7 @@ def average_linear_potential(
     inputs: ndarray,
     alpha: int,
     beta: int,
-    hayes: Hayes,
+    hayes: Heys,
     hamming_weight: ndarray,
     keys_batch_size: int = 256,
 ) -> ndarray:
@@ -33,7 +30,7 @@ def average_linear_potential(
     potential_einsum, average_einsum = "rc->r", "e->"
 
     average_potential = 0
-    for _ in tqdm(range(keys_batches)):
+    for _ in range(keys_batches):
         potential = bitwise_dot(
             x=beta,
             y=hayes.permutation[hayes.s_block[inputs ^ keys_batch]],
@@ -59,7 +56,7 @@ def linear_potential(
     alpha: int,
     beta: int,
     keys: ndarray,
-    hayes: Hayes,
+    hayes: Heys,
     hamming_weight: ndarray,
 ) -> ndarray:
     potential = bitwise_dot(
@@ -105,36 +102,3 @@ def calculate_hamming_weight(bits: int = 16) -> ndarray:
     for number in range(1 << bits):
         weight_table[number] = bin(number).count("1")
     return weight_table
-
-
-def main():
-    bits_number = 16
-    inputs_number = 1 << bits_number
-
-    hamming = calculate_hamming_weight(bits=bits_number)
-    hayes = Hayes(s_block_table=S_BOX, keys=zeros(6, dtype="uint16"))
-    inputs = arange(inputs_number, dtype="uint16").reshape((1, -1))
-
-    # total_potential = 0
-    # for alpha in tqdm(range(inputs_number)):
-    #     lp = linear_potential(
-    #         inputs=inputs,
-    #         alpha=alpha,
-    #         beta=43342,
-    #         keys=hayes.keys[0],
-    #         hayes=hayes,
-    #         hamming_weight=hamming,
-    #     )
-    #     total_potential += lp
-    # print(f"Total potential {total_potential}")
-
-    for beta in range(inputs_number):
-        av = average_linear_potential(
-            inputs=inputs,
-            alpha=42422,
-            beta=beta,
-            hayes=hayes,
-            hamming_weight=hamming,
-        )
-        if av > 0:
-            print(av)

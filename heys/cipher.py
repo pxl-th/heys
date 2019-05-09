@@ -23,8 +23,8 @@ class Heys:
     FRAGMENT = 4
 
     PERMUTATION_FILE = "heys-permutation.pkl"
-    SBOX_FILE = "heys-s-block.pkl"
-    SBOX_INVERSE_FILE = "heys-s-block-inverse.pkl"
+    SBOX_FILE = "heys-sbox.pkl"
+    SBOX_INVERSE_FILE = "heys-sbox-inverse.pkl"
 
     def __init__(self, sbox: ndarray, keys: ndarray):
         self._keys = keys.copy().byteswap(inplace=True)

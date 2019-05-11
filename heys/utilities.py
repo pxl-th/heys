@@ -55,17 +55,17 @@ def linear_potential(
     inputs: ndarray,
     alpha: int,
     beta: int,
-    keys: ndarray,
-    hayes: Heys,
+    transformation: callable,
     hamming_weight: ndarray,
 ) -> ndarray:
-    potential = bitwise_dot(
+    inputs_number = inputs.shape[0]
+    potential = bitwise_dot(x=alpha, y=inputs, hamming_weight=hamming_weight)
+    potential ^= bitwise_dot(
         x=beta,
-        y=hayes.permutation[hayes.sbox[inputs ^ keys]],
+        y=transformation(inputs),
         hamming_weight=hamming_weight,
     )
-    potential ^= bitwise_dot(x=alpha, y=inputs, hamming_weight=hamming_weight)
-    return (einsum("rc->r", where(potential == 0, 1, -1)) / (1 << 16)) ** 2
+    return (einsum("e->", where(potential == 0, 1, -1)) / inputs_number) ** 2
 
 
 def bitwise_dot(x, y, hamming_weight: ndarray):

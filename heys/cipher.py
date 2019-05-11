@@ -38,6 +38,30 @@ class Heys:
 
         self._load_cache()
 
+    @property
+    def keys(self) -> ndarray:
+        return self._keys
+
+    @property
+    def rounds(self) -> int:
+        return self._rounds
+
+    @property
+    def permutation(self) -> ndarray:
+        return self._permutation
+
+    @property
+    def sbox_fragment(self) -> ndarray:
+        return self._sbox_fragment
+
+    @property
+    def sbox(self) -> ndarray:
+        return self._sbox
+
+    @property
+    def sbox_inverse(self) -> ndarray:
+        return self._sbox_inverse
+
     def _load_cache(self):
         file_directory_path = abspath(join(__file__, ".."))
         permutation_path = join(file_directory_path, Heys.PERMUTATION_FILE)
@@ -80,22 +104,6 @@ class Heys:
             dump(obj=self._sbox, file=sbox_file)
         with open(sbox_inverse_path, "wb") as sbox_inverse_file:
             dump(obj=self._sbox_inverse, file=sbox_inverse_file)
-
-    @property
-    def keys(self) -> ndarray:
-        return self._keys
-
-    @property
-    def permutation(self) -> ndarray:
-        return self._permutation
-
-    @property
-    def sbox(self) -> ndarray:
-        return self._sbox
-
-    @property
-    def sbox_inverse(self) -> ndarray:
-        return self._sbox_inverse
 
     def encrypt(self, message: ndarray) -> ndarray:
         output = message.copy().byteswap(inplace=True)

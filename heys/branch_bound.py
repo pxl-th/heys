@@ -1,12 +1,15 @@
 """
 Branch and Bound algorithm for finding linear approximations.
 """
+from collections import defaultdict
+
 from numpy import (
     arange,
     ndarray,
     ones_like,
     zeros,
 )
+from numpy.random import randint
 
 from heys.cipher import Heys
 from heys.utilities import (
@@ -22,14 +25,15 @@ __all__ = [
 
 
 def branch_bound(heys: Heys, alpha: int, probability_threshold: float):
+    upper_bound = 1 << 16
     sbox_probabilities = sbox_linear_approximations(s_box=heys.sbox_fragment)
-    betas = arange(start=1, stop=1 << 16, dtype="uint16")
-    # todo: should swap bytes?
+    # betas = arange(start=1, stop=1 << 16, dtype="uint16")
 
     previous_round = {alpha: 1}
     for round_id in range(heys.rounds):
-        print(f"Round {round_id} with {len(previous_round)} items to check.")
-        current_round = {}
+        current_round = defaultdict(lambda: 0)
+        betas = randint(low=1, high=upper_bound, size=10000, dtype="uint16")
+
         for previous_element, previous_probability in previous_round.items():
             current_elements = zip(
                 betas,
@@ -40,18 +44,11 @@ def branch_bound(heys: Heys, alpha: int, probability_threshold: float):
                 ),
             )
             for current_element, current_probability in current_elements:
-                if current_element in current_round:
-                    current_round[current_element] += (
-                        previous_probability
-                        * current_probability
-                    )
-                else:
-                    current_round[current_element] = (
-                        previous_probability
-                        * current_probability
-                    )
+                current_round[current_element] += (
+                    previous_probability
+                    * current_probability
+                )
 
-        print(f"Current max {max(current_round.values())}")
         previous_round = {
             element: probability
             for element, probability in current_round.items()

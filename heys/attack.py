@@ -109,10 +109,10 @@ def calculate_approximations(
 
 def main():
     alphas = array([
+        0b1111000000000000,
         0b111100000000,
         0b11110000,
         0b1111,
-        0b1111000000000000,
     ], dtype="uint16")
     attack(
         alphas=alphas,

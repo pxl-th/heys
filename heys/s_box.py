@@ -87,10 +87,10 @@ def _sbox_transformation(sbox: ndarray) -> ndarray:
     elements = arange(start=0, stop=1 << 16, dtype="uint16")
 
     for fragment_id in range(_S_BOX_FRAGMENT):
-        sbox_output = sbox[
-            (elements >> (_S_BOX_FRAGMENT * fragment_id))
-            & sbox_mask
-            ]
+        sbox_output = (
+            sbox
+            [(elements >> (_S_BOX_FRAGMENT * fragment_id)) & sbox_mask]
+        )
         elements &= ~(sbox_mask << (_S_BOX_FRAGMENT * fragment_id))
         elements |= sbox_output << (_S_BOX_FRAGMENT * fragment_id)
 

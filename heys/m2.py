@@ -23,11 +23,13 @@ from heys.utilities import (
     calculate_hamming_weight,
 )
 
+__all__ = ["m2"]
+
 
 def m2(
     heys: Heys,
     inputs: ndarray,
-    outputs: ndarray,
+    ciphertexts: ndarray,
     approximations: Dict[int, Dict[int, float]],
     processes_number: int = 1,
     top_keys: int = 100,
@@ -51,7 +53,7 @@ def m2(
         betas_split = betas_array.shape[0] // processes_number
         processes = [
             Process(
-                target=key_search_process,
+                target=_key_search_process,
                 kwargs={
                     "output_keys": keys_list,
                     "heys": heys,
@@ -59,7 +61,7 @@ def m2(
                     "betas": betas_array[pid * betas_split:
                                          (pid + 1) * betas_split],
                     "inputs": inputs,
-                    "outputs": outputs,
+                    "ciphertexts": ciphertexts,
                     "hamming": hamming,
                     "top_keys": top_keys,
                 },
@@ -75,13 +77,13 @@ def m2(
     return array(keys, dtype="uint16")
 
 
-def key_search_process(
+def _key_search_process(
     output_keys: List[int],
     heys: Heys,
     alpha: int,
     betas: ndarray,
     inputs: ndarray,
-    outputs: ndarray,
+    ciphertexts: ndarray,
     hamming: ndarray,
     top_keys: int = 100,
 ) -> None:
@@ -98,7 +100,7 @@ def key_search_process(
             )
             correlation ^= bitwise_dot(
                 x=beta,
-                y=outputs,
+                y=ciphertexts,
                 hamming_weight=hamming,
             )
             possible_keys[key] = abs(einsum(

@@ -17,11 +17,7 @@ from heys.utilities import (
     linear_potential,
 )
 
-__all__ = [
-    "approximation_probability",
-    "branch_bound",
-    "sbox_linear_approximations",
-]
+__all__ = ["branch_bound"]
 
 
 def branch_bound(
@@ -29,7 +25,7 @@ def branch_bound(
     alpha: int,
     probability_threshold: float,
 ) -> Dict[int, float]:
-    sbox_probabilities = sbox_linear_approximations(s_box=heys.sbox_fragment)
+    sbox_probabilities = _sbox_linear_approximations(s_box=heys.sbox_fragment)
     betas = arange(start=1, stop=1 << 16, dtype="uint16")
 
     previous_round = {alpha: 1}
@@ -40,7 +36,7 @@ def branch_bound(
         for previous_element, previous_probability in previous_round.items():
             current_elements = zip(
                 betas,
-                approximation_probability(
+                _approximation_probability(
                     input_element=previous_element,
                     output_elements=heys.permutation[betas],
                     sbox_probabilities=sbox_probabilities,
@@ -59,7 +55,7 @@ def branch_bound(
     return previous_round
 
 
-def approximation_probability(
+def _approximation_probability(
     input_element: int,
     output_elements: ndarray,
     sbox_probabilities: ndarray,
@@ -75,7 +71,7 @@ def approximation_probability(
     return probabilities
 
 
-def sbox_linear_approximations(s_box: ndarray) -> ndarray:
+def _sbox_linear_approximations(s_box: ndarray) -> ndarray:
     numbers = 1 << 4
     approximations = zeros((16, 16), dtype="float64")
     input_numbers = arange(numbers, dtype="uint16")

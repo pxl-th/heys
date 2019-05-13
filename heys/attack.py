@@ -3,6 +3,7 @@ from collections import (
     defaultdict,
 )
 from os.path import isfile
+from typing import Dict
 from pickle import (
     dump,
     load,
@@ -33,7 +34,7 @@ def attack(
     )
     heys = Heys(sbox=S_BOX, keys=heys_keys)
     inputs = arange(start=0, stop=1000, dtype="uint16")
-    outputs = heys.encrypt(message=inputs)
+    ciphertexts = heys.encrypt(message=inputs)
 
     approximations = calculate_approximations(
         heys=heys,
@@ -46,7 +47,7 @@ def attack(
     key_candidates = m2(
         heys=heys,
         inputs=inputs,
-        outputs=outputs,
+        ciphertexts=ciphertexts,
         approximations=approximations,
         processes_number=processes_number,
     )
@@ -64,12 +65,12 @@ def calculate_approximations(
     alphas: ndarray,
     approximations_file: str,
     approximations_number: int,
-    probability_threshold: float = 1e-8,
-) -> dict:
-    approximations = defaultdict(lambda: dict())
+    probability_threshold: float = 1e-6,
+) -> Dict[int, Dict[int, float]]:
+    approximations: Dict[int, Dict[int, float]] = defaultdict(lambda: dict())
     if isfile(approximations_file):
         with open(approximations_file, "rb") as saved_file:
-            approximations = defaultdict(lambda: dict(), load(saved_file))
+            approximations.update(load(saved_file))
 
     total_approximations = sum([
         len(alpha_approximations)
@@ -86,7 +87,6 @@ def calculate_approximations(
             "Finding approximations for "
             f"{alpha_id + 1}/{alphas.shape[0]} alpha..."
         )
-
         approximations[alpha].update(branch_bound(
             heys=heys,
             alpha=alpha,
@@ -96,7 +96,6 @@ def calculate_approximations(
             len(alpha_approximations)
             for _, alpha_approximations in approximations.items()
         ])
-
         print(f"Total approximations {total_approximations}.")
         with open(approximations_file, "wb") as save_file:
             dump(dict(approximations), save_file)

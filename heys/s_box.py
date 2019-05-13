@@ -3,7 +3,6 @@ from typing import Tuple
 from numpy import (
     arange,
     array,
-    full,
     ndarray,
     where,
 )
@@ -84,7 +83,7 @@ def _sbox_transformation(sbox: ndarray) -> ndarray:
         (65536, ) ndarray[uint16]:
             Calculated transformations.
     """
-    sbox_mask = full(shape=1, fill_value=0b1111, dtype="uint16")
+    sbox_mask = array([0b1111], dtype="uint16")
     elements = arange(start=0, stop=1 << 16, dtype="uint16")
 
     for fragment_id in range(_S_BOX_FRAGMENT):

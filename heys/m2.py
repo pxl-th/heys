@@ -38,6 +38,7 @@ def m2(
     keys = []
     alpha_id = 0
     for alpha, betas in approximations.items():
+        alpha_id += 1
         print(
             f"Processing alpha {alpha}: "
             f"{alpha_id}/{len(approximations.keys())}"
@@ -88,7 +89,7 @@ def key_search_process(
     possible_keys = zeros_like(key_candidates, dtype="uint64")
 
     for beta_id, beta in enumerate(betas):
-        print(f"Processing beta {beta}: {beta_id}/{betas.shape[0]}")
+        print(f"Processing beta {beta}: {beta_id + 1}/{betas.shape[0]}")
         for key in key_candidates:
             correlation = bitwise_dot(
                 x=alpha,

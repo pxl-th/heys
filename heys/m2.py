@@ -9,7 +9,6 @@ from typing import (
 
 from numpy import (
     arange,
-    argmax,
     argsort,
     array,
     einsum,
@@ -30,7 +29,7 @@ def m2(
     inputs: ndarray,
     outputs: ndarray,
     approximations: Dict[int, Dict[int, float]],
-    processes_number: int = 4,
+    processes_number: int = 1,
     top_keys: int = 100,
 ) -> ndarray:
     print("Finding key candidates...")
@@ -38,9 +37,11 @@ def m2(
     hamming = calculate_hamming_weight(bits=16)
     keys = []
     alpha_id = 0
-    alphas_number = len(approximations)
     for alpha, betas in approximations.items():
-        print(f"Processing alpha {alpha}: {alpha_id}/{alphas_number}")
+        print(
+            f"Processing alpha {alpha}: "
+            f"{alpha_id}/{len(approximations.keys())}"
+        )
 
         manager = Manager()
         keys_list = manager.list()

@@ -123,7 +123,6 @@ def calculate_approximations(
     using :meth:`branch_bound` algorithm.
     If `heys` has :math:`r` rounds, then founded approximations are for
     :math:`r - 1` rounds, because we attack first round key.
-
     Linear approximation is a pair :math:`(\alpha, \beta)`, such that
 
     .. math::
@@ -148,18 +147,18 @@ def calculate_approximations(
                     for which holds :math:`p \ge p^*`,
                     where :math:`p^*` is the `probability_threshold`.
         max_approximations_number (int):
-            Number of approximations, that algorithm should find
-            to stop.
-            If for the given `probability_threshold` algorithm found
-            less than `approximations_number` number of approximations,
-            then you should decrease `probability_threshold`
-            and start again.
+            Amount of approximations that :meth:`branch_bounds` algorithm
+            should find before stopping.
+            **Note**, if for the given `probability_threshold`
+            algorithm found less than `max_approximations_number`
+            number of approximations, then you should
+            decrease `probability_threshold` and start it again.
         probability_threshold (float):
             Probability threshold which determines,
             what approximations will be selected.
             The higher the value the faster (but more inaccurate)
             algorithm is, and vise-versa, the lower the value,
-            the more robust it is, but will require much more computations.
+            the more robust it is (but will require much more computations).
 
     Returns:
         dict[int, dict[int, float]]:
@@ -214,7 +213,7 @@ def main():
         dtype="uint16",
     )
     heys = Heys(sbox=S_BOX, keys=heys_keys)
-    opentexts = arange(start=0, stop=30000, dtype="uint16")
+    opentexts = arange(start=0, stop=20000, dtype="uint16")
     ciphertexts = heys.encrypt(message=opentexts)
 
     approximations = {

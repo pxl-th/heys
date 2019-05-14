@@ -32,7 +32,7 @@ def m2(
     ciphertexts: ndarray,
     approximations: Dict[int, Dict[int, float]],
     processes_number: int = 1,
-    top_keys: int = 100,
+    top_keys: int = 200,
 ) -> ndarray:
     print("Finding key candidates...")
 

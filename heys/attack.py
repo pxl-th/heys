@@ -29,11 +29,11 @@ def attack(
     processes_number: int = 1,
 ):
     heys_keys = array(
-        [0x42, 0xfc, 0xaf, 0x13, 0x1488, 0x1984, 0xeaa],
+        [0x4242, 0xfc, 0xaf, 0x13, 0x1488, 0x1984, 0xeaa],
         dtype="uint16",
     )
     heys = Heys(sbox=S_BOX, keys=heys_keys)
-    inputs = arange(start=0, stop=1000, dtype="uint16")
+    inputs = arange(start=0, stop=30000, dtype="uint16")
     ciphertexts = heys.encrypt(message=inputs)
 
     approximations = calculate_approximations(

@@ -28,10 +28,11 @@ def branch_bound(
     sbox_probabilities = _sbox_linear_approximations(s_box=heys.sbox_fragment)
     betas = arange(start=1, stop=1 << 16, dtype="uint16")
 
-    # todo: calculate approximations for r - 1 instead of r
     previous_round = {alpha: 1}
-    for round_id in range(heys.rounds):
-        print(f"Round: {round_id} | Branches: {len(previous_round.keys())}")
+    for round_id in range(heys.rounds - 1):
+        print(
+            f"Round: {round_id + 1} | Branches: {len(previous_round.keys())}"
+        )
 
         current_round = defaultdict(lambda: 0)
         for previous_element, previous_probability in previous_round.items():

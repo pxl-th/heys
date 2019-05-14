@@ -27,13 +27,37 @@ __all__ = ["m2"]
 
 
 def m2(
-    heys: Heys,
-    inputs: ndarray,
-    ciphertexts: ndarray,
-    approximations: Dict[int, Dict[int, float]],
-    processes_number: int = 1,
-    top_keys: int = 200,
+        heys: Heys,
+        inputs: ndarray,
+        ciphertexts: ndarray,
+        approximations: Dict[int, Dict[int, float]],
+        processes_number: int = 1,
+        top_keys: int = 100,
 ) -> ndarray:
+    """
+    M2 algorithm for finding key-candidates,
+    given linear approximations and
+    corresponding pairs of open-text and ciphertext.
+
+    Args:
+        heys (:class:`Heys`):
+            Heys cipher from which round function will be taken.
+        inputs ((M, ) ndarray[uint16]):
+            Array of open-texts.
+        ciphertexts ((M, ) ndarray[uint16]):
+            Array of corresponding ciphertexts.
+        approximations (dict[int, dict[int, float]]):
+            Linear approximations.
+        processes_number (int):
+            Number of processors to use.
+        top_keys (int):
+            Number of key-candidates to select in :meth:`m2` algorithm
+            that have highest statistics.
+
+    Returns:
+        (M, ) ndarray[uint16]:
+            Array of key candidates, might contain duplicates of keys.
+    """
     print("Finding key candidates...")
 
     hamming = calculate_hamming_weight(bits=16)
@@ -78,20 +102,20 @@ def m2(
 
 
 def _key_search_process(
-    output_keys: List[int],
-    heys: Heys,
-    alpha: int,
-    betas: ndarray,
-    inputs: ndarray,
-    ciphertexts: ndarray,
-    hamming: ndarray,
-    top_keys: int = 100,
+        output_keys: List[int],
+        heys: Heys,
+        alpha: int,
+        betas: ndarray,
+        inputs: ndarray,
+        ciphertexts: ndarray,
+        hamming: ndarray,
+        top_keys: int = 100,
 ) -> None:
     key_candidates = arange(start=0, stop=1 << 16, dtype="uint16")
     possible_keys = zeros_like(key_candidates, dtype="uint64")
 
     for beta_id, beta in enumerate(betas):
-        print(f"Processing beta {beta}: {beta_id + 1}/{betas.shape[0]}")
+        print(f"| Processing beta {beta}: {beta_id + 1}/{betas.shape[0]}")
         for key in key_candidates:
             correlation = bitwise_dot(
                 x=alpha,

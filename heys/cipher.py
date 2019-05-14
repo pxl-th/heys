@@ -29,7 +29,7 @@ class Heys:
     SBOX_INVERSE_FILE = "heys-sbox-inverse.pkl"
 
     def __init__(self, sbox: ndarray, keys: ndarray):
-        self._keys = keys.copy().byteswap(inplace=True)
+        self._keys = keys.copy()
         self._rounds = self._keys.shape[0] - 1
 
         self._sbox_fragment = sbox

@@ -5,6 +5,7 @@ from multiprocessing import (
 from typing import (
     Dict,
     List,
+    Tuple,
 )
 
 from numpy import (
@@ -27,12 +28,11 @@ __all__ = ["m2"]
 
 
 def m2(
-        heys: Heys,
-        inputs: ndarray,
-        ciphertexts: ndarray,
-        approximations: Dict[int, Dict[int, float]],
-        processes_number: int = 1,
-        top_keys: int = 100,
+    heys: Heys,
+    data: Tuple[ndarray, ndarray],
+    approximations: Dict[int, Dict[int, float]],
+    processes_number: int = 1,
+    top_keys: int = 100,
 ) -> ndarray:
     """
     M2 algorithm for finding key-candidates,
@@ -42,10 +42,10 @@ def m2(
     Args:
         heys (:class:`Heys`):
             Heys cipher from which round function will be taken.
-        inputs ((M, ) ndarray[uint16]):
-            Array of open-texts.
-        ciphertexts ((M, ) ndarray[uint16]):
-            Array of corresponding ciphertexts.
+        data (tuple[(M, ) ndarray[uint16], (M, ) ndarray[uint16]]):
+            Tuple where the first element is the array opentexts
+            and the second element is the array of ciphertexts,
+            corresponding to the opentexts.
         approximations (dict[int, dict[int, float]]):
             Linear approximations.
         processes_number (int):
@@ -84,8 +84,7 @@ def m2(
                     "alpha": alpha,
                     "betas": betas_array[pid * betas_split:
                                          (pid + 1) * betas_split],
-                    "inputs": inputs,
-                    "ciphertexts": ciphertexts,
+                    "data": data,
                     "hamming": hamming,
                     "top_keys": top_keys,
                 },
@@ -102,14 +101,13 @@ def m2(
 
 
 def _key_search_process(
-        output_keys: List[int],
-        heys: Heys,
-        alpha: int,
-        betas: ndarray,
-        inputs: ndarray,
-        ciphertexts: ndarray,
-        hamming: ndarray,
-        top_keys: int = 100,
+    output_keys: List[int],
+    heys: Heys,
+    alpha: int,
+    betas: ndarray,
+    data: Tuple[ndarray, ndarray],
+    hamming: ndarray,
+    top_keys: int = 100,
 ) -> None:
     key_candidates = arange(start=0, stop=1 << 16, dtype="uint16")
     possible_keys = zeros_like(key_candidates, dtype="uint64")
@@ -119,12 +117,12 @@ def _key_search_process(
         for key in key_candidates:
             correlation = bitwise_dot(
                 x=alpha,
-                y=heys.permutation[heys.sbox[inputs ^ key]],
+                y=heys.permutation[heys.sbox[data[0] ^ key]],
                 hamming_weight=hamming,
             )
             correlation ^= bitwise_dot(
                 x=beta,
-                y=ciphertexts,
+                y=data[1],
                 hamming_weight=hamming,
             )
             possible_keys[key] = abs(einsum(

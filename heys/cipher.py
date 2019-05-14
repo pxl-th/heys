@@ -19,8 +19,6 @@ from heys.s_box import calculate_sbox
 __all__ = ["Heys"]
 
 
-# todo: swap bytes
-
 class Heys:
     FRAGMENT = 4
 

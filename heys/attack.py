@@ -25,39 +25,48 @@ __all__ = [
     "calculate_approximations",
 ]
 
+"""
+todo:
+    - provide heys externally
+    - provide data externally
+    - endianness flag (whether to swap endianness)
+    - add README
+    - complete documentation
+"""
+
 
 def attack(
-        alphas: ndarray,
-        approximations_file: str,
-        keys_file: str,
-        approximations_number: int = 300,
-        probability_threshold: float = 1e-5,
-        processes_number: int = 1,
-        top_keys: int = 100,
+    alphas: ndarray,
+    approximations_file: str,
+    keys_file: str,
+    approximations_number: int = 300,
+    probability_threshold: float = 1e-5,
+    processes_number: int = 1,
+    top_keys: int = 100,
 ):
     """
     Perform an attack on first round-key of SPN block cipher.
 
     Args:
         alphas ((N, )ndarray[uint16]):
-            Initial values for `branch-and-bounds` algorithm.
+            Initial values for :meth:`branch_bounds` algorithm.
         approximations_file (str):
             Filepath, where founded approximations will be saved.
         keys_file (str):
             File, where to save founded key-candidates.
         approximations_number (int):
-            Number of approximations, that algorithm should find
-            to stop.
-            If for the given `probability_threshold` algorithm found
-            less than `approximations_number` number of approximations,
-            then you should decrease `probability_threshold`
-            and start again.
+            Amount of approximations that :meth:`branch_bounds` algorithm
+            should find before stopping.
+            **Note**, if for the given `probability_threshold`
+            algorithm found less than `approximations_number`
+            number of approximations, then you should
+            decrease `probability_threshold` and start it again.
         probability_threshold (float):
             Probability threshold which determines,
             what approximations will be selected.
             The higher the value the faster (but more inaccurate)
             algorithm is, and vise-versa, the lower the value,
-            the more robust it is, but will require much more computations.
+            the more robust it is (but will require much more computations).
         processes_number (int):
             Number of processors to use in :meth:`m2` algorithm.
         top_keys (int):
@@ -65,11 +74,11 @@ def attack(
             that have highest statistics.
     """
     heys_keys = array(
-        [0xff2c, 0x1488, 0xa23f, 0xe323, 0x1444, 0x2012, 0xeaa],
+        [0xfecc, 0x1488, 0xa23f, 0xe323, 0x1444, 0x2012, 0xeaa],
         dtype="uint16",
     )
     heys = Heys(sbox=S_BOX, keys=heys_keys)
-    inputs = arange(start=0, stop=3000, dtype="uint16")
+    inputs = arange(start=0, stop=30000, dtype="uint16")
     ciphertexts = heys.encrypt(message=inputs)
 
     approximations = calculate_approximations(
@@ -96,11 +105,11 @@ def attack(
 
 
 def calculate_approximations(
-        heys: Heys,
-        alphas: ndarray,
-        approximations_file: str,
-        approximations_number: int,
-        probability_threshold: float,
+    heys: Heys,
+    alphas: ndarray,
+    approximations_file: str,
+    approximations_number: int,
+    probability_threshold: float,
 ) -> Dict[int, Dict[int, float]]:
     r"""
     Find linear approximations for the SPN
@@ -197,10 +206,10 @@ def main():
         alphas=alphas,
         approximations_file="heys-approximations-full.pkl",
         keys_file="heys-keys.pkl",
-        approximations_number=100,
+        approximations_number=200,
         probability_threshold=5e-5,
         processes_number=6,
-        top_keys=200,
+        top_keys=100,
     )
 
 

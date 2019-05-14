@@ -1,6 +1,9 @@
 """
 Branch and Bound algorithm for finding linear approximations.
 """
+from collections import defaultdict
+from typing import Dict
+
 from numpy import (
     arange,
     ndarray,
@@ -14,54 +17,47 @@ from heys.utilities import (
     linear_potential,
 )
 
-__all__ = [
-    "approximation_probability",
-    "branch_bound",
-    "sbox_linear_approximations",
-]
+__all__ = ["branch_bound"]
 
 
-def branch_bound(heys: Heys, alpha: int, probability_threshold: float):
-    sbox_probabilities = sbox_linear_approximations(s_box=heys.sbox_fragment)
+def branch_bound(
+    heys: Heys,
+    alpha: int,
+    probability_threshold: float,
+) -> Dict[int, float]:
+    sbox_probabilities = _sbox_linear_approximations(s_box=heys.sbox_fragment)
     betas = arange(start=1, stop=1 << 16, dtype="uint16")
-    # todo: should swap bytes?
 
     previous_round = {alpha: 1}
-    for round_id in range(heys.rounds):
-        print(f"Round {round_id} with {len(previous_round)} items to check.")
-        current_round = {}
+    for round_id in range(heys.rounds - 1):
+        print(
+            f"Round: {round_id + 1} | Branches: {len(previous_round.keys())}"
+        )
+
+        current_round = defaultdict(lambda: 0)
         for previous_element, previous_probability in previous_round.items():
             current_elements = zip(
                 betas,
-                approximation_probability(
+                _approximation_probability(
                     input_element=previous_element,
                     output_elements=heys.permutation[betas],
                     sbox_probabilities=sbox_probabilities,
                 ),
             )
             for current_element, current_probability in current_elements:
-                if current_element in current_round:
-                    current_round[current_element] += (
-                        previous_probability
-                        * current_probability
-                    )
-                else:
-                    current_round[current_element] = (
-                        previous_probability
-                        * current_probability
-                    )
-
-        print(f"Current max {max(current_round.values())}")
+                current_round[current_element] += (
+                    previous_probability
+                    * current_probability
+                )
         previous_round = {
             element: probability
             for element, probability in current_round.items()
             if probability > probability_threshold
         }
-
     return previous_round
 
 
-def approximation_probability(
+def _approximation_probability(
     input_element: int,
     output_elements: ndarray,
     sbox_probabilities: ndarray,
@@ -77,7 +73,7 @@ def approximation_probability(
     return probabilities
 
 
-def sbox_linear_approximations(s_box: ndarray) -> ndarray:
+def _sbox_linear_approximations(s_box: ndarray) -> ndarray:
     numbers = 1 << 4
     approximations = zeros((16, 16), dtype="float64")
     input_numbers = arange(numbers, dtype="uint16")
@@ -92,5 +88,4 @@ def sbox_linear_approximations(s_box: ndarray) -> ndarray:
                 transformation=lambda x: s_box[x],
                 hamming_weight=hamming,
             ))
-
     return approximations

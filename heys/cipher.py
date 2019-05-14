@@ -19,6 +19,8 @@ from heys.s_box import calculate_sbox
 __all__ = ["Heys"]
 
 
+# todo: swap bytes
+
 class Heys:
     FRAGMENT = 4
 
@@ -27,7 +29,7 @@ class Heys:
     SBOX_INVERSE_FILE = "heys-sbox-inverse.pkl"
 
     def __init__(self, sbox: ndarray, keys: ndarray):
-        self._keys = keys.copy().byteswap(inplace=True)
+        self._keys = keys.copy()
         self._rounds = self._keys.shape[0] - 1
 
         self._sbox_fragment = sbox
@@ -106,7 +108,7 @@ class Heys:
             dump(obj=self._sbox_inverse, file=sbox_inverse_file)
 
     def encrypt(self, message: ndarray) -> ndarray:
-        output = message.copy().byteswap(inplace=True)
+        output = message.copy()
 
         for round_id in range(self._rounds):
             output ^= self._keys[round_id]
@@ -125,7 +127,7 @@ class Heys:
             output = self._sbox_inverse[output]
             output ^= self._keys[round_id]
 
-        return output.byteswap(inplace=True)
+        return output
 
     @staticmethod
     def _calculate_permutation() -> ndarray:

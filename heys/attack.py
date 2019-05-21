@@ -25,13 +25,6 @@ __all__ = [
     "calculate_approximations",
 ]
 
-"""
-todo:
-    - endianness flag (whether to swap endianness)
-    - add README
-    - complete documentation
-"""
-
 
 def attack(
     heys: Heys,
@@ -209,7 +202,7 @@ def main():
     key_candidates_file = "heys-keys.pkl"
 
     heys_keys = array(
-        [0xfecc, 0x1488, 0xa23f, 0xe323, 0x1444, 0x2012, 0xeaa],
+        [0xafaf, 0x1234, 0x9998, 0x3457, 0x12, 0x1488, 0x7376],
         dtype="uint16",
     )
     heys = Heys(sbox=S_BOX, keys=heys_keys)
@@ -236,12 +229,16 @@ def main():
         processes_number=6,
         top_keys=100,
     )
-    print(key_candidates)
 
     with open(approximations_file, "wb") as save_file:
         dump(dict(approximations), save_file)
     with open(key_candidates_file, "wb") as save_file:
         dump(dict(key_candidates), save_file)
+
+    print(list(reversed(sorted(
+        key_candidates.items(),
+        key=lambda element: element[1],
+    ))))
 
 
 if __name__ == "__main__":

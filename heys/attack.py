@@ -12,6 +12,7 @@ from typing import (
 from numpy import (
     arange,
     array,
+    fromfile,
     ndarray,
 )
 
@@ -198,6 +199,10 @@ def calculate_approximations(
 
 
 def main():
+    # keys_file = r"C:\Users\tonys\Downloads\heys\heys_keys"
+    # input_file = r"C:\Users\tonys\Downloads\heys\heys_input"
+    output_file = r"C:\Users\tonys\Downloads\heys\heys_output"
+
     approximations_file = "heys-approximations-full.pkl"
     key_candidates_file = "heys-keys.pkl"
 
@@ -207,7 +212,10 @@ def main():
     )
     heys = Heys(sbox=S_BOX, keys=heys_keys)
     opentexts = arange(start=0, stop=20000, dtype="uint16")
-    ciphertexts = heys.encrypt(message=opentexts)
+    ciphertexts = fromfile(file=output_file, dtype="uint16")
+
+    # opentexts.tofile(input_file)
+    # heys_keys.tofile(keys_file)
 
     approximations = {
         0b1111000000000000: {},
@@ -241,5 +249,32 @@ def main():
     ))))
 
 
+def print_key_candidates(key_file: str):
+    with open(key_file, "rb") as key:
+        key_candidates = load(key)
+
+    print([
+        [hex(candidate), counter]
+        for candidate, counter in reversed(sorted(
+            key_candidates.items(),
+            key=lambda element: element[1],
+        ))
+    ])
+
+
+def print_approximations(approximations_file: str):
+    with open(approximations_file, "rb") as appr_file:
+        approximations = load(appr_file)
+
+    for alpha, betas in approximations.items():
+        hex_betas = {
+            hex(beta): prob
+            for beta, prob in betas.items()
+        }
+        print(f"{hex(alpha)} | {hex_betas}")
+
+
 if __name__ == "__main__":
-    main()
+    # main()
+    # print_key_candidates(key_file="heys-keys.pkl")
+    print_approximations(approximations_file="heys-approximations-full.pkl")

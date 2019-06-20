@@ -89,3 +89,9 @@ def _sbox_linear_approximations(s_box: ndarray) -> ndarray:
                 hamming_weight=hamming,
             ))
     return approximations
+
+
+if __name__ == '__main__':
+    from heys.s_box import S_BOX
+    print(_sbox_linear_approximations(s_box=S_BOX))
+
